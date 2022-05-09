@@ -1,4 +1,4 @@
-# Phobos
+# phobos
 Phobos was a game made in week to a game jam (Game JaaJ), this game is made in SDL2 (pygame) & OpenGL Legacy.
 
 To execute (only windows):
@@ -12,14 +12,14 @@ cd \build\v0.1\phobos\ && start 64x.bat
 
 **OBS: YOU DO NOT NEED TO HAVE PYTHON INSTALLED, BECAUSE THE GAME USE PYTHON EMBED PACKAGE.**
 
-# Why use this?
+# info
 I did not finish the game, but I made one map editor workable, you can use this base to create your game.
 
-# How to use map editor.
+# map editor
 Start map editor, add tiles or add your texture, you can set the mode of rendering in modes (GL legacy).
 You can select pressing mouse on tile, resizing (to prevent many tiles), I made create 1k tiles in screen.
 
-# Features & future features.
+# meta
 Features:
 - Map editor.
 - Gui system.
@@ -30,7 +30,7 @@ Future features:
 - Physics.
 - History sync.
 
-Credits to:
+# credit
 - ![Rina](https://github.com/SirRina)
 - Ranklee & others design (resources I used to test stuff).
 
