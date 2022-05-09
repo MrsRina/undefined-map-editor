@@ -10,7 +10,7 @@ git clone https://github.com/SirRina/phobos-game-pygame.git
 cd \build\v0.1\phobos\ && start 64x.bat
 ```
 
-OBS: YOU DO NOT NEED TO HAVE PYTHON INSTALLED, BECAUSE THE GAME USE PYTHON EMBED PACKAGE.
+**OBS: YOU DO NOT NEED TO HAVE PYTHON INSTALLED, BECAUSE THE GAME USE PYTHON EMBED PACKAGE.**
 
 # Why use this?
 I did not finish the game, but I made one map editor workable, you can use this base to create your game.
