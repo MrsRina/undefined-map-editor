@@ -19,11 +19,8 @@ I did not finish the game, but I made one map editor workable, you can use this 
 Start map editor, add tiles or add your texture, you can set the mode of rendering in modes (GL legacy).
 You can select pressing mouse on tile, resizing (to prevent many tiles), I made create 1k tiles in screen.
 
-Credits to:
-- ![Rina](https://github.com/SirRina)
-- Ranklee & others design (resources I used to test stuff).
-
-# Features
+# Features & future features.
+Features:
 - Map editor.
 - Gui system.
 - Setting system.
@@ -32,6 +29,10 @@ Credits to:
 Future features:
 - Physics.
 - History sync.
+
+Credits to:
+- ![Rina](https://github.com/SirRina)
+- Ranklee & others design (resources I used to test stuff).
 
 ![Alt text](/resources/splash/splash_main_menu.png?raw=true)
 ![Alt text](/resources/splash/splash_map_editor_empty.png?raw=true)
