@@ -1,5 +1,5 @@
 # phobos
-Phobos was a game made in week to a game jam (Game JaaJ), this game is made in SDL2 (pygame) & OpenGL Legacy.
+Phobos was a game made in week to a game jam (Game JaaJ 2021), this game is made in SDL2 (pygame) & OpenGL Legacy.
 
 To execute (only windows):
 ```
