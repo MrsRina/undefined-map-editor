@@ -1,5 +1,10 @@
 # Phobos
-Phobos was a game made in week to a game jam (Game JaaJ).
+Phobos was a game made in week to a game jam (Game JaaJ), this game is made in SDL2 (pygame) & OpenGL Legacy.
+
+To execute (only windows):
+`cd \build\v0.1\phobos\64x.bat`
+
+OBS: YOU DO NOT NEED TO HAVE PYTHON INSTALLED, BECAUSE THE GAME USE PYTHON EMBED PACKAGE.
 
 # Why use this?
 I did not finish the game, but I made one map editor workable, you can use this base to create your game.
