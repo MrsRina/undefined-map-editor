@@ -1,10 +1,27 @@
-# phobos
- Possivelmente um jogo feito para uma jaaj!
- Eu nao finalizei que caralhoskkk
+# Phobos
+Phobos was a game made in week to a game jam (Game JaaJ).
 
-# Como jogar!
+# Why use this?
+I did not finish the game, but I made one map editor workable, you can use this base to create your game.
 
- Infelizmente você não vai poder executar o jogo nativamente pela source, para poder executar o jogo primeiro, você deve baixar o repositorio, existe uma pasta chamada build, você executa ela o 64x.bat, assim vai dar processo a inicialização do jogo!
+# How use map editor.
+Start map editor, add tiles or add your texture, you can set the mode of rendering in modes (GL legacy).
+You can select pressing mouse on tile, resizing (to prevent many tiles), I made create 1k tiles in screen.
 
-# Outras coisas:
- A pasta src é aonde fica a src sem a build, pra não deixar desorganizado, mas toda vez que eu modificar alguma coisa na src, tenho que fazer o processo de buildar o jogo, sim manualmente!
+Credits to:
+- ![Rina](https://github.com/SirRina)
+- Ranklee & others design (resources I used to test stuff).
+
+# Features
+- Map editor.
+- Gui system.
+- Setting system.
+- Entity system.
+
+Future features:
+- Physics.
+- History sync.
+
+![Alt text](/resources/splash/splash_main_menu.png?raw=true)
+![Alt text](/resources/splash/splash_map_editor_empty.png?raw=true)
+![Alt text](/resources/splash/splash_map_editor_modes.png?raw=true)
