@@ -56,6 +56,7 @@ class Object:
 
 		self.database = [PHASE, tag, tag, "scaled"];
 		self.texture_id = 0;
+		self.internal_texture_refresh = True;
 
 	def set_id(self, id):
 		self.database[ID] = id;
@@ -75,8 +76,10 @@ class Object:
 	def get_name(self):
 		return self.database[NAME];
 
-	def set_mode(self, mode):
-		self.database[MODE] = mode;
+	def set_mode(self, mode, texture_manager):
+		if self.database[MODE] != mode:
+			self.database[MODE] = mode;
+			self.internal_texture_refresh = True;
 
 	def get_mode(self):
 		return self.database[MODE];
@@ -85,16 +88,16 @@ class Object:
 		self.prev_x = self.x + (camera.x if self.static is False else 0);
 		self.prev_y = self.y + (camera.y if self.static is False else 0);
 
-		if self.found_texture is None or self.found_texture.tag is not self.get_name():
-			if (self.texture_id == 0):
-				self.texture_id = GL11.glGenTextures(1);
-
+		if self.found_texture is None or self.found_texture.image is None:
 			self.found_texture = texture_manager.get(self.get_name());
 
-			if self.found_texture is None or self.found_texture.image is None:
-				return;
+		if self.internal_texture_refresh and self.found_texture != None and self.found_texture.image != None:
+			self.internal_texture_refresh = False;
 
 			data = pygame.image.tostring(self.found_texture.image, "RGBA");
+
+			if (self.texture_id == 0):
+				self.texture_id = GL11.glGenTextures(1);
 
 			GL11.glEnable(GL11.GL_TEXTURE_2D);
 			GL11.glBindTexture(GL11.GL_TEXTURE_2D, self.texture_id);
@@ -226,8 +229,10 @@ class Map:
 		self.loaded_entity_list.clear();
 		self.loaded_image_list.clear();
 
+		self.loaded = False;
+
 	def init(self):
-		pass
+		self.loaded = True;
 
 	def save(self, path):
 		self.tag = util.path_split(path)[0];
@@ -359,7 +364,7 @@ class Map:
 			object_.alpha = texture.alpha;
 			object_.tile = texture.tile;
 			object_.static = texture.static;
-			object_.set_mode(texture.get_mode());
+			object_.set_mode(texture.get_mode(), self.master.texture_manager);
 
 		object_.w = size[0];
 		object_.h = size[1];

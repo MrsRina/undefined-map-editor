@@ -174,6 +174,8 @@ class Game:
 
 			# Fizemos o update da tela!
 			if self.update_stamp.is_passed(self.interval):
+				self.update_stamp.reset();
+
 				# Calculamos os partial ticks.
 				self.partial_ticks = self.clock.tick(self.fps) / self.timer;
 
@@ -184,8 +186,6 @@ class Game:
 				self.handler_out_event();
 				self.update();
 
-				self.update_stamp.reset();
-
 				# Antes de tudo devemos limpar a tela!
 				self.clear();
 				self.render();
@@ -194,7 +194,7 @@ class Game:
 				self.mainloop();
 
 				# Ler o fps...
-				#util.log("FPS: " + str(self.clock.get_fps()), "INFO-VIDEO");
+				# util.log("FPS: " + str(self.clock.get_fps()), "INFO-VIDEO");
 
 	def call_update(int, self):
 		pass

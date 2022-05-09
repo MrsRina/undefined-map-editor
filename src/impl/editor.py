@@ -565,8 +565,7 @@ class FrameObject(imgui.Element):
 			self.current_object.tile = self.button_tile.button_pressed;
 
 			if self.button_mode.value != self.current_object.get_mode():
-				self.current_object.found_texture = None;
-				self.current_object.set_mode(self.button_mode.value);
+				self.current_object.set_mode(self.button_mode.value, self.master.texture_manager);
 
 class UI:
 	def __init__(self, master):

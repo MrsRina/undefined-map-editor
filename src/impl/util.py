@@ -156,7 +156,7 @@ def load_data_map(the_map, data):
 		object_.set_name(name);
 		object_.set_tag(tag);
 		object_.set_id(id);
-		object_.set_mode(mode);
+		object_.set_mode(mode, the_map.master.texture_manager);
 
 		object_.alpha = alpha;
 		object_.static = static;

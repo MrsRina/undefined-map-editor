@@ -95,6 +95,8 @@ class FontRenderer:
 		except:
 			self.cfont = pygame.font.Font(self.path, self.size);
 
+		self.font
+
 		self.texture = GL11.glGenTextures(1);
 
 	def get_width(self, string):
@@ -117,10 +119,8 @@ class FontRenderer:
 
 		GL11.glPushMatrix();
 
-		id = GL11.glGenTextures(1);
-
 		GL11.glEnable(GL11.GL_TEXTURE_2D);
-		GL11.glBindTexture(GL11.GL_TEXTURE_2D, id);
+		GL11.glBindTexture(GL11.GL_TEXTURE_2D, self.texture);
 
 		GL11.glTexParameterf(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MAG_FILTER, GL11.GL_LINEAR);
 		GL11.glTexParameterf(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MIN_FILTER, GL11.GL_LINEAR);
