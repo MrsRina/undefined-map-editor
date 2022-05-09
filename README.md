@@ -1,10 +1,39 @@
 # phobos
- Possivelmente um jogo feito para uma jaaj!
- Eu nao finalizei que caralhoskkk
+Phobos was a game made in week to a game jam (Game JaaJ), this game is made in SDL2 (pygame) & OpenGL Legacy.
 
-# Como jogar!
+To execute (only windows):
+```
+# clone the repo
+git clone https://github.com/SirRina/phobos-game-pygame.git
 
- Infelizmente você não vai poder executar o jogo nativamente pela source, para poder executar o jogo primeiro, você deve baixar o repositorio, existe uma pasta chamada build, você executa ela o 64x.bat, assim vai dar processo a inicialização do jogo!
+# go to path or find folder manually.
+cd \build\v0.1\phobos\ && start 64x.bat
+```
 
-# Outras coisas:
- A pasta src é aonde fica a src sem a build, pra não deixar desorganizado, mas toda vez que eu modificar alguma coisa na src, tenho que fazer o processo de buildar o jogo, sim manualmente!
+**OBS: YOU DO NOT NEED TO HAVE PYTHON INSTALLED, BECAUSE THE GAME USE PYTHON EMBED PACKAGE.**
+
+# info
+I did not finish the game, but I made one map editor workable, you can use this base to create your game.
+
+# map editor
+Start map editor, add tiles or add your texture, you can set the mode of rendering in modes (GL legacy).
+You can select pressing mouse on tile, resizing (to prevent many tiles), I made create 1k tiles in screen.
+
+# meta
+Features:
+- Map editor.
+- Gui system.
+- Setting system.
+- Entity system.
+
+Future features:
+- Physics.
+- History sync.
+
+# credit
+- ![Rina](https://github.com/SirRina)
+- Ranklee & others design (resources I used to test stuff).
+
+![Alt text](/resources/splash/splash_main_menu.png?raw=true)
+![Alt text](/resources/splash/splash_map_editor_empty.png?raw=true)
+![Alt text](/resources/splash/splash_map_editor_modes.png?raw=true)
