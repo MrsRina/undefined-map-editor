@@ -7,7 +7,7 @@ To execute (only windows):
 git clone https://github.com/SirRina/phobos-game-pygame.git
 
 # go to path or find folder manually.
-cd \build\v0.1\phobos\ & start 64x.bat
+cd \build\v0.1\phobos\ && start 64x.bat
 ```
 
 OBS: YOU DO NOT NEED TO HAVE PYTHON INSTALLED, BECAUSE THE GAME USE PYTHON EMBED PACKAGE.
