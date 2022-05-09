@@ -4,7 +4,7 @@ Phobos was a game made in week to a game jam (Game JaaJ).
 # Why use this?
 I did not finish the game, but I made one map editor workable, you can use this base to create your game.
 
-# How use map editor.
+# How to use map editor.
 Start map editor, add tiles or add your texture, you can set the mode of rendering in modes (GL legacy).
 You can select pressing mouse on tile, resizing (to prevent many tiles), I made create 1k tiles in screen.
 
