@@ -1,0 +1,57 @@
+{
+    "id": -999,
+    "textures": [
+        {
+            "tag": "logo",
+            "path": "data/logo.png"
+        },
+        {
+            "tag": "tile_terrain_border_left",
+            "path": "data/tile_terrain_border_left.png"
+        },
+        {
+            "tag": "tile_terrain_center",
+            "path": "data/tile_terrain_center.png"
+        },
+        {
+            "tag": "tile_terrain_border_right",
+            "path": "data/tile_terrain_border_right.png"
+        }
+    ],
+    "color": [
+        0,
+        0,
+        0,
+        255
+    ],
+    "images": [
+        {
+            "tag": ".01",
+            "name": "logo",
+            "mode": "scaled",
+            "id": "phase",
+            "alpha": 10,
+            "static": false,
+            "tile": true,
+            "visibility": 1,
+            "x": 224,
+            "y": 128,
+            "w": 480,
+            "h": 512
+        },
+        {
+            "tag": ".11",
+            "name": "tile_terrain_center",
+            "mode": "scaled",
+            "id": "phase",
+            "alpha": 255,
+            "static": false,
+            "tile": true,
+            "visibility": 1,
+            "x": 800,
+            "y": 192,
+            "w": 32,
+            "h": 32
+        }
+    ]
+}

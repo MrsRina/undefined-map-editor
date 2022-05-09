@@ -1,0 +1,185 @@
+{
+    "id": -999,
+    "textures": [
+        {
+            "tag": "logo",
+            "path": "data/logo.png"
+        },
+        {
+            "tag": "tile_terrain_border_left",
+            "path": "data/tile_terrain_border_left.png"
+        },
+        {
+            "tag": "tile_terrain_center",
+            "path": "data/tile_terrain_center.png"
+        },
+        {
+            "tag": "tile_terrain_border_right",
+            "path": "data/tile_terrain_border_right.png"
+        },
+        {
+            "tag": "player_spawn",
+            "path": "data/player_spawn.png"
+        },
+        {
+            "tag": "mob_spawn",
+            "path": "data/mob_spawn.png"
+        },
+        {
+            "tag": "passive_spawn",
+            "path": "data/passive_spawn.png"
+        },
+        {
+            "tag": "tile_sand",
+            "path": "data/tile_sand.png"
+        }
+    ],
+    "color": [
+        138.5390625,
+        32.125,
+        106.4140625,
+        255
+    ],
+    "images": [
+        {
+            "tag": ".01",
+            "name": "tile_sand",
+            "mode": "repeat",
+            "id": 0,
+            "alpha": 255,
+            "static": false,
+            "tile": true,
+            "visibility": 1,
+            "x": -1024,
+            "y": 608,
+            "w": 2208,
+            "h": 448
+        },
+        {
+            "tag": ".11",
+            "name": "tile_sand",
+            "mode": "repeat",
+            "id": 0,
+            "alpha": 255,
+            "static": false,
+            "tile": true,
+            "visibility": 1,
+            "x": -1024,
+            "y": 64,
+            "w": 32,
+            "h": 544
+        },
+        {
+            "tag": ".21",
+            "name": "player_spawn",
+            "mode": "repeat",
+            "id": "phase",
+            "alpha": 255,
+            "static": false,
+            "tile": true,
+            "visibility": 1,
+            "x": -960,
+            "y": 576,
+            "w": 32,
+            "h": 32
+        },
+        {
+            "tag": ".31",
+            "name": "tile_sand",
+            "mode": "repeat",
+            "id": 0,
+            "alpha": 255,
+            "static": false,
+            "tile": true,
+            "visibility": 1,
+            "x": -832,
+            "y": 576,
+            "w": 32,
+            "h": 32
+        },
+        {
+            "tag": ".41",
+            "name": "tile_sand",
+            "mode": "repeat",
+            "id": 0,
+            "alpha": 255,
+            "static": false,
+            "tile": true,
+            "visibility": 1,
+            "x": -768,
+            "y": 576,
+            "w": 32,
+            "h": 32
+        },
+        {
+            "tag": ".51",
+            "name": "tile_sand",
+            "mode": "repeat",
+            "id": 0,
+            "alpha": 255,
+            "static": false,
+            "tile": true,
+            "visibility": 1,
+            "x": -768,
+            "y": 544,
+            "w": 32,
+            "h": 32
+        },
+        {
+            "tag": ".61",
+            "name": "tile_sand",
+            "mode": "repeat",
+            "id": 0,
+            "alpha": 255,
+            "static": false,
+            "tile": true,
+            "visibility": 1,
+            "x": -704,
+            "y": 576,
+            "w": 32,
+            "h": 32
+        },
+        {
+            "tag": ".71",
+            "name": "tile_sand",
+            "mode": "repeat",
+            "id": 0,
+            "alpha": 255,
+            "static": false,
+            "tile": true,
+            "visibility": 1,
+            "x": -704,
+            "y": 544,
+            "w": 32,
+            "h": 32
+        },
+        {
+            "tag": ".81",
+            "name": "tile_sand",
+            "mode": "repeat",
+            "id": 0,
+            "alpha": 255,
+            "static": false,
+            "tile": true,
+            "visibility": 1,
+            "x": -704,
+            "y": 512,
+            "w": 32,
+            "h": 32
+        },
+        {
+            "tag": ".91",
+            "name": "tile_sand",
+            "mode": "repeat",
+            "id": 0,
+            "alpha": 255,
+            "static": false,
+            "tile": true,
+            "visibility": 1,
+            "x": -1536,
+            "y": 608,
+            "w": 512,
+            "h": 32
+        }
+    ]
+}
