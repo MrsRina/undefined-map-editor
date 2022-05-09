@@ -2,7 +2,13 @@
 Phobos was a game made in week to a game jam (Game JaaJ), this game is made in SDL2 (pygame) & OpenGL Legacy.
 
 To execute (only windows):
-`cd \build\v0.1\phobos\64x.bat`
+```
+# clone the repo
+git clone https://github.com/SirRina/phobos-game-pygame.git
+
+# go to path or find folder manually.
+cd \build\v0.1\phobos\ & start 64x.bat
+```
 
 OBS: YOU DO NOT NEED TO HAVE PYTHON INSTALLED, BECAUSE THE GAME USE PYTHON EMBED PACKAGE.
 
