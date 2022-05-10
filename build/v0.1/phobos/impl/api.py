@@ -686,13 +686,13 @@ class Rect(pygame.Rect):
 		self.max_x = Point(x + w, y, self.angle);
 		self.max_y = Point(x + w, y + h, self.angle);
 
-		self.x = x;
-		self.y = y;
-
-		self.w = w;
-		self.h = h;
+		self.set_position(x, y);
+		self.set_size(w, h);
 
 	def set_position(self, x, y):
+		if self.x == x and self.y == y:
+			return;
+
 		self.x = x;
 		self.y = y;
 
@@ -706,6 +706,9 @@ class Rect(pygame.Rect):
 		self.min_y.set(self.x + (self.w / 2), self.y + (self.h / 2), self.angle);
 
 	def set_size(self, w, h):
+		if self.w == w and self.h == h:
+			return;
+
 		self.w = w;
 		self.h = h;
 

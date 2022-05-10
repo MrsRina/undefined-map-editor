@@ -85,8 +85,8 @@ class Object:
 		return self.database[MODE];
 
 	def update(self, partial_ticks, texture_manager, camera):
-		self.prev_x = self.x + (camera.x if self.static is False else 0);
-		self.prev_y = self.y + (camera.y if self.static is False else 0);
+		self.prev_x = self.x - (camera.x if self.static is False else 0);
+		self.prev_y = self.y - (camera.y if self.static is False else 0);
 
 		if self.found_texture is None or self.found_texture.image is None:
 			self.found_texture = texture_manager.get(self.get_name());
@@ -165,10 +165,10 @@ class RenderManager:
 
 	def render(self, partial_ticks):
 		if self.master.current_map is not None:
-			api.OpenGL.fill_shape(self.master.current_map.rect.x, self.master.current_map.rect.y, self.master.current_map.rect.w, self.master.current_map.rect.h, self.master.current_map.background_color);
+			api.OpenGL.fill_shape(0, 0, self.master.current_map.rect.w, self.master.current_map.rect.h, self.master.current_map.background_color);
 
 			api.OpenGL.set(GL11.GL_SCISSOR_TEST);
-			api.OpenGL.cut(self.master.current_map.rect.x, self.master.current_map.rect.y, self.master.current_map.rect.w, self.master.current_map.rect.h, self.master.screen_rect);
+			api.OpenGL.cut(0, 0, self.master.current_map.rect.w, self.master.current_map.rect.h, self.master.screen_rect);
 
 			for images in self.batch_object:
 				images.render();
@@ -188,6 +188,13 @@ class Map:
 
 		self.rect = api.Rect(0, 0, 0, 0);
 		self.size = 200;
+
+		self.x = 0;
+		self.y = 0;
+		self.w = 0;
+		self.h = 0;
+
+		self.render_distance = 200;
 
 		self.loaded_entity_list = {};
 		self.loaded_image_list = {};
@@ -445,8 +452,8 @@ class Map:
 		return [self.rect.w, self.rect.h];
 
 	def get_relative_mouse_position(self):
-		mx = (self.master.mouse_position[0] - self.master.camera.x) // TILE_SIZE;
-		my = (self.master.mouse_position[1] - self.master.camera.y) // TILE_SIZE;
+		mx = (self.master.mouse_position[0] + self.master.camera.x) // TILE_SIZE;
+		my = (self.master.mouse_position[1] + self.master.camera.y) // TILE_SIZE;
 
 		return [math.floor(mx) * TILE_SIZE, math.floor(my) * TILE_SIZE];
 
@@ -460,12 +467,15 @@ class Map:
 		if self.event_list.__contains__(EVENT_REFRESH):
 			self.event_list.remove(EVENT_REFRESH);
 
-		if self.edit_mode is False:
-			self.rect.x = -200;
-			self.rect.y = -200;
+		self.rect.x = self.x + self.master.camera.x - self.render_distance;
+		self.rect.y = self.y + self.master.camera.y - self.render_distance;
 
-			self.rect.w = self.master.screen_rect.w + 400;
-			self.rect.h = self.master.screen_rect.h + 400;
+		self.rect.w = self.w + (self.render_distance * 2);
+		self.rect.h = self.h + (self.render_distance * 2);
+
+		if self.edit_mode is False:
+			self.w = self.master.screen_rect.w;
+			self.h = self.master.screen_rect.h;
 
 			for ids in set(self.loaded_entity_list):
 				entity = self.loaded_entity_list[ids];
@@ -479,13 +489,10 @@ class Map:
 				if entity.alive is False:
 					del self.loaded_entity_list[entity.get_id()];
 
-			self.master.camera.x = self.master.player.rect.x - (self.rect.w / 2);
-			self.master.camera.y = 0;
+			self.master.camera.last_tick_x = self.master.player.rect.x - (self.w / 2);
+			self.master.camera.last_tick_y = self.master.player.rect.y - (self.h / 2);
 
-			self.master.camera.last_tick_x = self.master.camera.x;
-			self.master.camera.last_tick_y = self.master.camera.y;
-
-			print(self.master.player.rect.x);
+		spawn = None;
 
 		for images in self.loaded_image_list:
 			image = self.loaded_image_list[images];
@@ -501,14 +508,16 @@ class Map:
 			else:
 				image.visibility = 0;
 
-			if self.spawn_needed and self.edit_mode is False:
-				if image.get_name() == "player_spawn":
-					self.master.player.set_position(image.x, image.y);
+			if self.spawn_needed and self.edit_mode is False and image.get_name() == "player_spawn":
+				spawn = image;
 
-					self.master.stage_input = 1;
-					self.master.input_manager.entity_in = self.master.player;
+		if spawn != None:
+			self.master.player.set_position(image.x, image.y);
 
-					self.spawn_needed = False;
+			self.master.stage_input = 1;
+			self.master.input_manager.entity_in = self.master.player;
+
+			self.spawn_needed = False;
 
 		self.mouse_over = self.rect.collide_with_mouse(self.master.mouse_position);
 
@@ -520,8 +529,8 @@ class Map:
 			y = the_y;
 
 			if self.current_image.tile:
-				mx = ((self.master.mouse_position[0] if self.current_image.w == TILE_SIZE else the_x) - self.master.camera.x) // TILE_SIZE;
-				my = ((self.master.mouse_position[1] if self.current_image.h == TILE_SIZE else the_y) - self.master.camera.y) // TILE_SIZE;
+				mx = ((self.master.mouse_position[0] if self.current_image.w == TILE_SIZE else the_x) + self.master.camera.x) // TILE_SIZE;
+				my = ((self.master.mouse_position[1] if self.current_image.h == TILE_SIZE else the_y) + self.master.camera.y) // TILE_SIZE;
 
 				x = math.floor(mx) * TILE_SIZE;
 				y = math.floor(my) * TILE_SIZE;
@@ -570,7 +579,7 @@ class Camera:
 		self.y = initial_y;
 
 		self.last_tick_x = self.x;
-		self.last_tick_y = self.x;
+		self.last_tick_y = self.y;
 
 	def set_position(self, x, y):
 		self.x = self.x;
@@ -583,3 +592,6 @@ class Camera:
 		if self.master.stage_input == 1:
 			self.x = util.lerp(self.x, self.last_tick_x, partial_ticks);
 			self.y = util.lerp(self.y, self.last_tick_y, partial_ticks);
+		else:
+			self.x = self.last_tick_x;
+			self.y = self.last_tick_y;

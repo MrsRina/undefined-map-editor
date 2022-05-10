@@ -805,10 +805,16 @@ class Editor:
 			self.interface.on_key_event(key, state);
 
 			if state is Flag.KEYDOWN and key == pygame.K_LEFT:
-				self.master.camera.x -= 1;
+				self.master.camera.last_tick_x -= 5;
 
 			if state is Flag.KEYDOWN and key == pygame.K_RIGHT:
-				self.master.camera.x += 1;
+				self.master.camera.last_tick_x += 5;
+
+			if state is Flag.KEYDOWN and key == pygame.K_UP:
+				self.master.camera.last_tick_y -= 5;
+
+			if state is Flag.KEYDOWN and key == pygame.K_DOWN:
+				self.master.camera.last_tick_y += 5;
 
 	def process_mouse_event(self, mx, my, button, state):
 		if self.interface is not None and self.operable:
@@ -831,8 +837,8 @@ class Editor:
 
 	def render(self, partial_ticks):
 		if self.interface is not None and self.operable:
-			self.get_current_map().rect.w = self.master.screen_rect.w - self.interface.width;
-			self.get_current_map().rect.h = self.master.screen_rect.h;
+			self.get_current_map().w = self.master.screen_rect.w - self.interface.width;
+			self.get_current_map().h = self.master.screen_rect.h;
 
 			# Renderizamos antes dos widgets!
 			if self.get_current_map().current_image is not None:

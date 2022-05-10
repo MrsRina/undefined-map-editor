@@ -20,7 +20,6 @@ class Entity:
 		self.last_tick_y = 0;
 
 		self.rect = pygame.Rect(0, 0, 16, 30);
-		self.rect_position = self.rect;
 
 		self.visibility = True;
 		self.alive = True;
@@ -48,8 +47,6 @@ class Entity:
 
 		self.database = [tag, 20, id];
 		self.animation = 0;
-
-		self.frustum = None;
 
 	def set_tag(self, tag):
 		self.database[TAG] = tag;
@@ -80,15 +77,15 @@ class Entity:
 		self.right = right;
 
 	def set_position(self, x, y):
-		self.rect.x = x + self.frustum.x;
-		self.rect.y = y + self.frustum.y;
+		self.rect.x = x;
+		self.rect.y = y;
 
 	def respawn(self, default_position = None):
 		self.set_health(20);
 		self.alive = True;
 		self.visibility = True;
 
-	def collide(self, physic, objects, camera):
+	def collide(self, physic, objects, frustum):
 		x = self.rect.x;
 		y = self.rect.y;
 
@@ -108,9 +105,7 @@ class Entity:
 			self.just_jump = True;
 			self.on_ground = False;
 
-	def update(self, objects, physic, partial_ticks, camera):
-		self.frustum = camera;
-
+	def update(self, objects, physic, partial_ticks, frustum):
 		if not self.on_ground:
 		 	self.angle, self.motion_y = util.add_angle_length(self.angle, self.motion_y, math.pi, physic.gravity);
 		 	self.motion_y *= self.ampl;
@@ -118,15 +113,18 @@ class Entity:
 		self.rect.x += self.motion_x * self.speed * physic.gravity * partial_ticks;
 		self.rect.y += -math.cos(self.angle) * self.motion_y;
 
+		self.prev_x = self.rect.x - frustum.x;
+		self.prev_y = self.rect.y - frustum.y;
+
 		self.on_ground = False;
-		self.collide(physic, objects, camera);
+		self.collide(physic, objects, frustum);
 
 		self.motion_x = self.motion_x * 0.1;
 		self.motion_y = self.motion_y * 0.1;
 
 	def render(self, partial_ticks):
 		if self.alive:
-			api.OpenGL.fill_shape_rect(self.rect, [255, 0, 255, 100]);
+			api.OpenGL.fill_shape(self.prev_x, self.prev_y, self.rect.w, self.rect.h, [255, 0, 255, 100]);
 
 class EntityPlayer(Entity):
 	def __init__(self, tag, id):
