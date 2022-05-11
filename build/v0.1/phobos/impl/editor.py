@@ -33,19 +33,14 @@ class LabelObject(imgui.Label):
 		self.mouse_over = self.rect.collide_with_mouse(self.master.mouse_position);
 
 	def render(self):
-		self.object_update.x = self.rect.x;
-		self.object_update.y = self.rect.y;
-
-		self.object_update.w = self.rect.w;
-		self.object_update.h = self.rect.h;
-
+		self.object_update.rect = self.rect;
 		self.object_update.update(self.master.partial_ticks, self.master.texture_manager, self.master.camera);
 
 		if self.object_update.found_texture is not None:
-			api.OpenGL.fill_texture(self.object_update.x, self.object_update.y, self.object_update.w, self.object_update.h, self.object_update.texture_id, [255, 255, 255, self.object_update.alpha]);
+			api.OpenGL.fill_texture(self.object_update.rect.x, self.object_update.rect.y, self.object_update.rect.w, self.object_update.rect.h, self.object_update.texture_id, [255, 255, 255, self.object_update.alpha]);
 
 		if self.object_update.superior:
-			api.OpenGL.fill_shape(self.object_update.x, self.object_update.y, self.object_update.w, self.object_update.h, [self.object_update.color[0], self.object_update.color[1], self.object_update.color[2], 100]);
+			api.OpenGL.fill_shape(self.object_update.rect.x, self.object_update.rect.y, self.object_update.rect.w, self.object_update.rect.h, [self.object_update.color[0], self.object_update.color[1], self.object_update.color[2], 100]);
 
 		self.rect.set_position(self.rect.x, self.rect.y);
 		self.rect.set_size(self.rect.w, self.rect.h);
@@ -181,10 +176,10 @@ class FrameData(imgui.Element):
 				x += widgets.rect.w + 1;
 
 		if self.current_sprite is not None:
-			api.OpenGL.fill_line_shape(self.current_sprite.x, self.current_sprite.y, self.current_sprite.w, self.current_sprite.h, [0, 190, 190, 200], 1, "all");
+			api.OpenGL.fill_line_shape(self.current_sprite.rect.x, self.current_sprite.rect.y, self.current_sprite.rect.w, self.current_sprite.rect.h, [0, 190, 190, 200], 1, "all");
 
 		if self.focused_sprite is not None:
-			api.OpenGL.fill_line_shape(self.current_sprite.x, self.current_sprite.y, self.current_sprite.w, self.current_sprite.h, [0, 255, 0, 200], 1, "all");
+			api.OpenGL.fill_line_shape(self.current_sprite.rect.x, self.current_sprite.rect.y, self.current_sprite.rect.w, self.current_sprite.rect.h, [0, 255, 0, 200], 1, "all");
 
 		api.OpenGL.unset(GL11.GL_SCISSOR_TEST);
 
@@ -845,9 +840,9 @@ class Editor:
 				image = self.get_current_map().current_image;
 
 				if self.get_current_map().dragging_image:
-					api.OpenGL.fill_shape(image.prev_x, image.prev_y, image.w, image.h, [0, 190, 190, 200]);	
+					api.OpenGL.fill_shape(image.render_x, image.render_y, image.rect.w, image.rect.h, [0, 190, 190, 200]);	
 				else:
-					api.OpenGL.fill_line_shape(image.prev_x, image.prev_y, image.w, image.h, [0, 190, 190, 200], 1, "all");
+					api.OpenGL.fill_line_shape(image.render_x, image.render_y, image.rect.w, image.rect.h, [0, 190, 190, 200], 1, "all");
 
 			self.interface.render(partial_ticks);
 

@@ -690,9 +690,6 @@ class Rect(pygame.Rect):
 		self.set_size(w, h);
 
 	def set_position(self, x, y):
-		if self.x == x and self.y == y:
-			return;
-
 		self.x = x;
 		self.y = y;
 
@@ -706,9 +703,6 @@ class Rect(pygame.Rect):
 		self.min_y.set(self.x + (self.w / 2), self.y + (self.h / 2), self.angle);
 
 	def set_size(self, w, h):
-		if self.w == w and self.h == h:
-			return;
-
 		self.w = w;
 		self.h = h;
 
@@ -730,16 +724,16 @@ class Rect(pygame.Rect):
 		return rect;
 
 	def collide_with_mouse(self, mouse):
-		return mouse[0] >= self.min_x.x and mouse[1] >= self.min_x.y and \
-		       mouse[0] >= self.min_y.x and mouse[1] <= self.min_y.y and \
-		       mouse[0] <= self.max_x.x and mouse[1] >= self.max_x.y and \
-		       mouse[0] <= self.max_y.x and mouse[1] <= self.max_y.y;
+		return mouse[0] > self.min_x.x and mouse[1] > self.min_x.y and \
+		       mouse[0] > self.min_y.x and mouse[1] < self.min_y.y and \
+		       mouse[0] < self.max_x.x and mouse[1] > self.max_x.y and \
+		       mouse[0] < self.max_y.x and mouse[1] < self.max_y.y;
 
 	def collide_with_mouse_shape(self, mouse):
-		return mouse[0] >= self.x and mouse[1] >= self.y and mouse[0] <= self.x + self.w and mouse[1] <= self.y + self.h;
+		return mouse[0] > self.x and mouse[1] > self.y and mouse[0] < self.x + self.w and mouse[1] < self.y + self.h;
 
 	def collide_with_rect_shape(self, rect):
-		return self.x <= (rect.x + rect.w) and (self.x + self.w) >= rect.x and self.y <= (rect.y + rect.h) and (self.y + self.h) >= rect.y;
+		return self.x < (rect.x + rect.w) and (self.x + self.w) > rect.x and self.y < (rect.y + rect.h) and (self.y + self.h) > rect.y;
 
 class TimerStamp:
 	def __init__(self):
@@ -837,7 +831,7 @@ class TextureManager:
 
 		self.loaded_count = 0;
 		self.unloaded_count = 0;
-
+		self.cache = {};
 		self.initialized = False;
 
 	def set_initialized(self):
@@ -845,6 +839,13 @@ class TextureManager:
 
 	def unset_initialized(self):
 		self.initialized = False;
+
+	def find_in_cache(self, text_tag):
+		if self.cache.__contains__(text_tag):
+			return self.cache[text_tag];
+
+		self.cache[text_tag] = GL11.glGenTextures(1);
+		return self.cache[text_tag];
 
 	def init(self):
 		self.load(Texture("player_spawn", "rina", "data/player_spawn.png"));

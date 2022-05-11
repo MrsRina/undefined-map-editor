@@ -34,16 +34,10 @@ MODE = 3;
 
 class Object:
 	def __init__(self, tag, x, y):
-		self.prev_x = x;
-		self.prev_y = y;
+		self.render_x = x;
+		self.render_y = y;
 
-		self.x = x;
-		self.y = y;
-
-		self.rect = api.Rect(0, 0, 0, 0);
-
-		self.w = 30;
-		self.h = 30;
+		self.rect = api.Rect(x, y, 30, 30);
 
 		self.found_texture = None;
 		self.color = [255, 255, 255];
@@ -85,19 +79,17 @@ class Object:
 		return self.database[MODE];
 
 	def update(self, partial_ticks, texture_manager, camera):
-		self.prev_x = self.x - (camera.x if self.static is False else 0);
-		self.prev_y = self.y - (camera.y if self.static is False else 0);
+		self.render_x = self.rect.x - (camera.x if self.static is False else 0);
+		self.render_y = self.rect.y - (camera.y if self.static is False else 0);
 
 		if self.found_texture is None or self.found_texture.image is None:
 			self.found_texture = texture_manager.get(self.get_name());
 
 		if self.internal_texture_refresh and self.found_texture != None and self.found_texture.image != None:
 			self.internal_texture_refresh = False;
+			self.texture_id = texture_manager.find_in_cache(self.get_name() + "-" + self.get_mode());
 
 			data = pygame.image.tostring(self.found_texture.image, "RGBA");
-
-			if (self.texture_id == 0):
-				self.texture_id = GL11.glGenTextures(1);
 
 			GL11.glEnable(GL11.GL_TEXTURE_2D);
 			GL11.glBindTexture(GL11.GL_TEXTURE_2D, self.texture_id);
@@ -116,25 +108,27 @@ class Object:
 			GL11.glDisable(GL11.GL_TEXTURE_2D);
 
 	def collide_with_mouse(self, mouse):
-		return mouse[0] >= self.prev_x and mouse[1] >= self.prev_y and mouse[0] <= self.prev_x + self.w and mouse[1] <= self.prev_y + self.h;
+		x = self.rect.x;
+		y = self.rect.y;
+		w = self.rect.w;
+		h = self.rect.h;
+
+		return mouse[0] >= x and mouse[1] >= y and mouse[0] <= x + w and mouse[1] <= y + h;
 
 	def collide_with_rect(self, rect):
-		return self.prev_x <= (rect.x + rect.w) and (self.prev_x + self.w) >= rect.x and self.prev_y <= (rect.y + rect.h) and (self.prev_y + self.h) >= rect.y;
+		x = self.rect.x;
+		y = self.rect.y;
+		w = self.rect.w;
+		h = self.rect.h;
 
-	def get_rect(self):
-		self.rect.x = self.prev_x;
-		self.rect.y = self.prev_y;
-		self.rect.w = self.w;
-		self.rect.h = self.h;
-
-		return self.rect;
+		return x <= (rect.x + rect.w) and (x + w) >= rect.x and y <= (rect.y + rect.h) and (y + h) >= rect.y;
 
 	def render(self):
 		if self.found_texture is not None:
 			if self.superior:
-				api.OpenGL.fill_shape(self.prev_x, self.prev_y, self.w, self.h, [self.color[0], self.color[1], self.color[2], 100]);
+				api.OpenGL.fill_shape(self.render_x, self.render_y, self.rect.w, self.rect.h, [self.color[0], self.color[1], self.color[2], 100]);
 
-			api.OpenGL.fill_texture(self.prev_x, self.prev_y, self.w, self.h, self.texture_id, [self.color[1], self.color[2], self.color[2], self.alpha], None if self.get_mode() == "scaled" else [self.found_texture.image.get_width(), self.found_texture.image.get_height()]);
+			api.OpenGL.fill_texture(self.render_x, self.render_y, self.rect.w, self.rect.h, self.texture_id, [self.color[1], self.color[2], self.color[2], self.alpha], None if self.get_mode() == "scaled" else [self.found_texture.image.get_width(), self.found_texture.image.get_height()]);
 
 class RenderManager:
 	def __init__(self, master):
@@ -155,13 +149,13 @@ class RenderManager:
 			images = self.master.current_map.loaded_image_list[tags];
 
 			if images.visibility:
-				self.batch_object.append(images);
+				self.batch_object.append(images.render);
 
 		for ids in self.master.current_map.loaded_entity_list:
 			entity = self.master.current_map.loaded_entity_list[ids];
 
 			if entity.visibility:
-				self.batch_entity.append(entity);
+				self.batch_entity.append(entity.render);
 
 	def render(self, partial_ticks):
 		if self.master.current_map is not None:
@@ -170,11 +164,11 @@ class RenderManager:
 			api.OpenGL.set(GL11.GL_SCISSOR_TEST);
 			api.OpenGL.cut(0, 0, self.master.current_map.rect.w, self.master.current_map.rect.h, self.master.screen_rect);
 
-			for images in self.batch_object:
-				images.render();
+			for invokable_render in self.batch_object:
+				invokable_render();
 
-			for entities in self.batch_entity:
-				entities.render(partial_ticks);
+			for invokable_render in self.batch_entity:
+				invokable_render(partial_ticks);
 
 			api.OpenGL.unset(GL11.GL_SCISSOR_TEST);
 
@@ -288,21 +282,21 @@ class Map:
 		if self.edit_mode:
 			if state == Flag.KEYDOWN and self.mouse_over_something is False:
 				if button is 1 and self.current_image is not None and self.current_image.collide_with_mouse([mx, my]):
-					rect_image = api.Rect(self.current_image.prev_x, self.current_image.prev_y, self.current_image.w, self.current_image.h);
+					rect_image = api.Rect(self.current_image.render_x, self.current_image.render_y, self.current_image.rect.w, self.current_image.rect.h);
 
 					rect = api.Rect(rect_image.x, rect_image.y, rect_image.w, rect_image.h);
 					rect.set_position(rect_image.x + rect_image.w - 4, rect_image.y + rect_image.h - 4);
 					rect.set_size(4, 4);
 
 					if rect.collide_with_mouse(self.master.mouse_position):
-						self.resize_x = mx - (self.current_image.prev_x + self.current_image.w);
-						self.resize_y = my - (self.current_image.prev_y + self.current_image.h);
+						self.resize_x = mx - (self.current_image.render_x + self.current_image.rect.w);
+						self.resize_y = my - (self.current_image.render_y + self.current_image.rect.h);
 
 						self.dragging_image = False;
 						self.resizing_image = True;
 					else:
-						self.drag_x = mx - self.current_image.prev_x;
-						self.drag_y = my - self.current_image.prev_y;
+						self.drag_x = mx - self.current_image.render_x;
+						self.drag_y = my - self.current_image.render_y;
 	
 						self.dragging_image = True;
 						self.resizing_image = False;
@@ -355,7 +349,7 @@ class Map:
 			size = texture.get_size();
 			tag = texture.tag;
 		elif type(texture) is Object:
-			size = [texture.w, texture.h];
+			size = [texture.rect.w, texture.rect.h];
 			tag = texture.get_name();
 		else:
 			size = self.master.texture_manager.get(texture.tag).get_size();
@@ -373,16 +367,16 @@ class Map:
 			object_.static = texture.static;
 			object_.set_mode(texture.get_mode(), self.master.texture_manager);
 
-		object_.w = size[0];
-		object_.h = size[1];
+		object_.rect.w = size[0];
+		object_.rect.h = size[1];
 
 		if custom_init_position is not None:
-			object_.x = custom_init_position[0];
-			object_.y = custom_init_position[1];
+			object_.rect.x = custom_init_position[0];
+			object_.rect.y = custom_init_position[1];
 
 			if len(custom_init_position) > 1:
-				object_.w = custom_init_position[2];
-				object_.h = custom_init_position[3];
+				object_.rect.w = custom_init_position[2];
+				object_.rect.h = custom_init_position[3];
 
 		if self.loaded_image_list.__contains__(tag) is False:
 			self.loaded_image_list[tag] = object_;
@@ -419,7 +413,7 @@ class Map:
 		for i, tags in enumerate(self.loaded_image_list):
 			image = self.loaded_image_list[tags];
 
-			rect = api.Rect(image.x - 1, image.y - 1, image.w - 2, image.h - 2);
+			rect = api.Rect(image.rect.x - 1, image.rect.y - 1, image.rect.w - 2, image.rect.h - 2);
 
 			if rect.collide_with_mouse(position):
 				return True;
@@ -512,7 +506,7 @@ class Map:
 				spawn = image;
 
 		if spawn != None:
-			self.master.player.set_position(image.x, image.y);
+			self.master.player.set_position(image.rect.x, image.rect.y);
 
 			self.master.stage_input = 1;
 			self.master.input_manager.entity_in = self.master.player;
@@ -529,18 +523,18 @@ class Map:
 			y = the_y;
 
 			if self.current_image.tile:
-				mx = ((self.master.mouse_position[0] if self.current_image.w == TILE_SIZE else the_x) + self.master.camera.x) // TILE_SIZE;
-				my = ((self.master.mouse_position[1] if self.current_image.h == TILE_SIZE else the_y) + self.master.camera.y) // TILE_SIZE;
+				mx = ((self.master.mouse_position[0] if self.current_image.rect.w == TILE_SIZE else the_x) + self.master.camera.x) // TILE_SIZE;
+				my = ((self.master.mouse_position[1] if self.current_image.rect.h == TILE_SIZE else the_y) + self.master.camera.y) // TILE_SIZE;
 
 				x = math.floor(mx) * TILE_SIZE;
 				y = math.floor(my) * TILE_SIZE;
 
-			self.current_image.x = x;
-			self.current_image.y = y;
+			self.current_image.rect.x = x;
+			self.current_image.rect.y = y;
 
 		if self.resizing_image and self.edit_mode and self.current_image is not None:
-			the_x = self.master.mouse_position[0] - (self.current_image.prev_x + self.resize_x);
-			the_y = self.master.mouse_position[1] - (self.current_image.prev_y + self.resize_y);
+			the_x = self.master.mouse_position[0] - (self.current_image.render_x + self.resize_x);
+			the_y = self.master.mouse_position[1] - (self.current_image.render_y + self.resize_y);
 
 			x = the_x;
 			y = the_y;
@@ -565,8 +559,8 @@ class Map:
 				if y <= TILE_SIZE:
 					y = TILE_SIZE;
 
-			self.current_image.w = x;
-			self.current_image.h = y;
+			self.current_image.rect.w = x;
+			self.current_image.rect.h = y;
 
 	def render(self, partial_ticks):
 		pass;
