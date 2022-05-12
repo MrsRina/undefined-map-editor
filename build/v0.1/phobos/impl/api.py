@@ -422,6 +422,49 @@ class OpenGL:
 		GL11.glEnable(GL11.GL_TEXTURE_2D);
 		GL11.glPopMatrix();
 
+	def fill_rectangle(rectangle, frustum, c):
+		GL11.glPushMatrix();
+
+		OpenGL.unset(GL11.GL_TEXTURE_2D);
+		OpenGL.blend();
+
+		color = [util.clamp(c[0], 0, 255), util.clamp(c[1], 0, 255), util.clamp(c[2], 0, 255), util.clamp(c[3], 0, 255)];
+
+		OpenGL.color(color);
+		GL11.glBegin(GL11.GL_QUADS);
+		
+		GL11.glVertex(rectangle.vertex[0].x - frustum.x, rectangle.vertex[0].y - frustum.y);
+		GL11.glVertex(rectangle.vertex[1].x - frustum.x, rectangle.vertex[1].y - frustum.y);
+
+		GL11.glVertex(rectangle.vertex[2].x - frustum.x, rectangle.vertex[2].y - frustum.y);
+		GL11.glVertex(rectangle.vertex[3].x - frustum.x, rectangle.vertex[3].y - frustum.y);
+		
+		GL11.glEnd();
+		GL11.glEnable(GL11.GL_TEXTURE_2D);
+		GL11.glPopMatrix();
+
+	def fill_arc(arcle, frustum, c):
+		GL11.glPushMatrix();
+
+		OpenGL.unset(GL11.GL_TEXTURE_2D);
+		OpenGL.blend();
+
+		color = [util.clamp(c[0], 0, 255), util.clamp(c[1], 0, 255), util.clamp(c[2], 0, 255), util.clamp(c[3], 0, 255)];
+		OpenGL.color(color);
+
+		GL11.glBegin(GL11.GL_POINTS);
+		GL11.glVertex(arcle.center.x - frustum.x, arcle.center.y - frustum.y);
+		GL11.glEnd();
+
+		OpenGL.color((0, 0, 0, 255));
+		GL11.glBegin(GL11.GL_LINES);
+		GL11.glVertex(arcle.center.x - frustum.x, arcle.center.y - frustum.y);
+		GL11.glVertex(arcle.startpoint.x - frustum.x, arcle.startpoint.y - frustum.y);
+		GL11.glEnd();
+
+		GL11.glEnable(GL11.GL_TEXTURE_2D);
+		GL11.glPopMatrix();
+
 class Data:
 	def __init__(self, context):
 		self.context = context;

@@ -224,6 +224,7 @@ class Game:
 
 		if self.stage_outgame == -2 and self.current_map is not None and self.stage_map_editor != 2:
 			self.current_map.update(self.partial_ticks);
+			self.physic.update();
 
 	def render(self):
 		self.mouse_position = pygame.mouse.get_pos();
@@ -241,6 +242,7 @@ class Game:
 
 		if self.stage_outgame == -2 and self.current_map is not None and self.stage_map_editor != 2:
 			self.render_manager.render(self.partial_ticks);
+			self.physic.render(self.partial_ticks);
 
 			if self.stage_input == 1:
 				self.input_manager.render();
