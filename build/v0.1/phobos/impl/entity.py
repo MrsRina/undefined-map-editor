@@ -89,17 +89,6 @@ class Entity:
 		x = self.rect.x;
 		y = self.rect.y;
 
-		collided = [];
-
-		for i in objects:
-			e = objects[i];
-
-			if e.rect.collide_with_rect_shape(self.rect):
-				collided.append(e.rect);
-
-		for r in collided:
-			print(r);
-
 	def jump(self):
 		if self.on_ground:
 			self.just_jump = True;
