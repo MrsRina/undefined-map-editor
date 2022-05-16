@@ -1,6 +1,25 @@
 from .lib import math, pygame;
 from .    import api, util, universe;
 
+class CollideInfo:
+	def __init__(self):
+		self.depth = 0;
+		self.normal = 0;
+		self.start = 0;
+		self.end = 0;
+
+	def set_info(self, d, n, s):
+		self.depth = d;
+		self.normal = n;
+		self.start = start;
+		self.end = s.add(n.scale(d));
+
+	def oposite(self):
+		self.normal = self.normal.scale(-1);
+		n = self.start;
+		self.start = self.end;
+		self.end = n;
+
 class Vec2:
 	def __init__(self, x, y):
 		self.x = x;
@@ -77,6 +96,8 @@ class Rectangle(RigidShape):
 
 		self.type = "rectangle";
 		self.gravity = 0;
+		self.spd = 0;
+		self.sp = None;
 		self.bound_radius = math.sqrt(w * w + h * h) / 2;
 
 		self.w = w;
@@ -123,19 +144,72 @@ class Rectangle(RigidShape):
 
 		return self;
 
-	def find_support_point(self, dir, ptonedge):
+	def collidewith(self, rect, collideinfo):
+		status1 = 0;
+		status2 = 0;
+
+		info1 = CollideInfo();
+		info2 = CollideInfo();
+
+		status1 = self.find_axis_least_penetration(rect, info1);
+
+		if status1:
+			status2 = rect.find_axis_least_penetration(self, info2);
+
+			if status2:
+				if (info1.depth < info2.depth):
+					depth_vec = info1.normal.scale(info1.depth);
+					collideinfo.set_info(info1.depth, info1.normal, info1.start.subtract(depth_vec));
+				else:
+					collideinfo.set_info(info2.depth, info2.normal.scale(-1), info2.start);
+
+		return status1 and status2;
+
+
+	def find_support_point(self, the_dir, ptonedge):
 		toedge = 0;
 		projection = 0;
 
-		spd = -9999999;
-		sp = None;
+		self.spd = -9999999;
+		self.sp = None;
 
 		for i in range(0, len(self.vertex)):
 			toedge = self.vertex[i].subtract(ptonedge);
-			projection = toedge.dot(dir);
+			projection = toedge.dot(the_dir);
 
-			if (projection > 0) and (projection > spd):
-				pass
+			if (projection > 0) and (projection > self.spd):
+				self.sp = self.vertex[i];
+				self.spd = projection;
+
+	def find_axis_least_penetration(self, rect, collideinfo):
+		n = 0;
+		sp = 0;
+		best_dist = 999999;
+		best_index = -1;
+		has_sp = 1;
+
+		i = 0;
+
+		while (has_sp and (i < len(self.face_normal))):
+			n = self.face_normal[i];
+			the_dir = self.vertex[i];
+			ptonedge = self.vertex[i];
+
+			rect.find_support_point(the_dir, ptonedge);
+			has_sp = (self.sp != None);
+
+			if (has_sp and self.spd < best_dist):
+				best_dist = self.spd;
+				best_index = i;
+				spd = self.spd;
+
+			i += 1;
+
+		if has_sp and best_dist != -1:
+			bestVec = self.face_normal[best_index].scale(best_dist);
+			collideinfo.set_info(best_dist, self.face_normal[best_index], bestVec.add(spd));
+
+		return has_sp;
 
 class Circle(RigidShape):
 	def __init__(self, center, radius):
@@ -178,32 +252,13 @@ class Circle(RigidShape):
 		self.startpoint = self.startpoint.rotate(self.center, self.angle);
 		return self;
 
-class ColldeInfo:
-	def __init__(self):
-		self.depth = 0;
-		self.normal = 0;
-		self.start = 0;
-		self.end = 0;
-
-	def set_info(self, d, n, s):
-		self.depth = d;
-		self.normal = n;
-		self.start = start;
-		self.end = s.add(n.scale(d));
-
-	def oposite(self):
-		self.normal = self.normal.scale(-1);
-		n = self.start;
-		self.start = self.end;
-		self.end = n;
-
 class Physic:
 	def __init__(self, master):
 		self.gravity = 0.9;
 		self.shape_list = [];
 		self.master = master;
 		self.offset_ticks = 0;
-		self.collideinfo = ColldeInfo();
+		self.collideinfo = CollideInfo();
 
 	def add(self, rigidshape):
 		self.shape_list.append(rigidshape);
@@ -226,8 +281,7 @@ class Physic:
 		key = pygame.key.get_pressed();
 
 		if key[pygame.K_SPACE] and self.offset_ticks > 80:
-			rect = Circle(Vec2(self.master.player.rect.x, self.master.player.rect.y), 200);
-			rect.rotate(90);
+			rect = Rectangle(Vec2(self.master.player.rect.x, self.master.player.rect.y), 200, 200);
 			rect.push(self);
 			self.offset_ticks = 0;
 
