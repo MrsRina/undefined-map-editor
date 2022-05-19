@@ -433,11 +433,11 @@ class OpenGL:
 		OpenGL.color(color);
 		GL11.glBegin(GL11.GL_QUADS);
 		
-		GL11.glVertex(rectangle.vertex[0].x - frustum.x, rectangle.vertex[0].y - frustum.y);
-		GL11.glVertex(rectangle.vertex[1].x - frustum.x, rectangle.vertex[1].y - frustum.y);
+		GL11.glVertex(rectangle.vertex[0][0] - frustum.x, rectangle.vertex[0][1] - frustum.y);
+		GL11.glVertex(rectangle.vertex[1][0] - frustum.x, rectangle.vertex[1][1] - frustum.y);
 
-		GL11.glVertex(rectangle.vertex[2].x - frustum.x, rectangle.vertex[2].y - frustum.y);
-		GL11.glVertex(rectangle.vertex[3].x - frustum.x, rectangle.vertex[3].y - frustum.y);
+		GL11.glVertex(rectangle.vertex[2][0] - frustum.x, rectangle.vertex[2][1] - frustum.y);
+		GL11.glVertex(rectangle.vertex[3][0] - frustum.x, rectangle.vertex[3][1] - frustum.y);
 		
 		GL11.glEnd();
 		GL11.glEnable(GL11.GL_TEXTURE_2D);
