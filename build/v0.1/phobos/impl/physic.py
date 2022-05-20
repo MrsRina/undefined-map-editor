@@ -1,6 +1,8 @@
 from .lib import math, pygame;
 from .    import api, util, universe;
 
+GRAVITY = 9;
+
 """
 	This class contains static methods to manipule vectors.
 """
@@ -39,7 +41,7 @@ class Math:
 
 		matrix_rotation = [
 			x * math.sin(a) - y * math.cos(a),
-			x * math.cos(a) + y * math.cos(a)
+			x * math.cos(a) + y * math.sin(a)
 		];
 
 		return Math.add(matrix_rotation, vec_center);
@@ -157,20 +159,7 @@ class Physic:
 					segment_shapes_1.collided = 1;
 
 	def render(self, partial_ticks):
-		key = pygame.key.get_pressed();
-
-		if key[pygame.K_SPACE] and self.offset_ticks > 80:
-			rect = Rectangle(Math.vec2(self.master.player.rect.x, self.master.player.rect.y), 200, 200);
-			rect.push(self);
-			self.offset_ticks = 0;
-
-		self.offset_ticks += 1;
-
-		for shapes in self.shape_list:
-			if shapes.type == "rectangle":
-				api.OpenGL.fill_rectangle(shapes, self.master.camera, (255, 255, 0 if shapes.collided else 255, 200));
-			elif shapes.type == "circle":
-				api.OpenGL.fill_arc(shapes, self.master.camera, (255, 255, 255, 200));
+		pass
 
 	def check(self, tile):
 		return tile.get_name() != "player_spawn" and tile.get_name() != "mob_spawn" and tile.get_name() != "passive_spawn";

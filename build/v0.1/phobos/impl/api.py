@@ -892,8 +892,9 @@ class TextureManager:
 
 	def init(self):
 		self.load(Texture("player_spawn", "rina", "data/player_spawn.png"));
-		self.load(Texture("mob_spawn", "rina", "data/mob_spawn.png"));
-		self.load(Texture("passive_spawn", "rina", "data/passive_spawn.png"));
+		self.load(Texture("mob_spawn", "rina", "data/player_spawn.png"));
+		self.load(Texture("passive_spawn", "rina", "data/player_spawn.png"));
+		self.load(Texture("collision", "rina", "data/player_spawn.png"));
 		self.load(Texture("tile_terrain_border_left", "werneck", "data/tile_terrain_border_left.png"));
 		self.load(Texture("tile_terrain_center", "werneck", "data/tile_terrain_center.png"));
 		self.load(Texture("tile_terrain_border_right", "werneck", "data/tile_terrain_border_right.png"));

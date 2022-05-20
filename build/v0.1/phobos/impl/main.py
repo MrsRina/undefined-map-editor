@@ -40,7 +40,7 @@ pygame.mixer.quit();
 tkinter.Tk().withdraw();
 
 # Vi em um site.
-pygame.event.set_allowed([pygame.QUIT, pygame.KEYDOWN, pygame.KEYUP, pygame.MOUSEBUTTONDOWN, pygame.MOUSEBUTTONUP, pygame.VIDEORESIZE]);
+pygame.event.set_allowed([pygame.QUIT, pygame.KEYDOWN, pygame.KEYUP, pygame.MOUSEBUTTONDOWN, pygame.MOUSEBUTTONUP, pygame.MOUSEMOTION, pygame.VIDEORESIZE]);
 
 # Surface pro icone.
 ico_surface = pygame.image.load("data/ico.ico");
@@ -168,6 +168,7 @@ class Game:
 	def run(self):
 		while 1:
 			self.wait();
+			self.mouse_position = pygame.mouse.get_pos();
 
 			# Manuzeamos os eventos.
 			self.handler_for_loop_event();
@@ -227,8 +228,6 @@ class Game:
 			self.physic.update();
 
 	def render(self):
-		self.mouse_position = pygame.mouse.get_pos();
-
 		if (self.stage_outgame is not -2 or self.loading_now == "refresh") and self.background_main_menu_color < 50:
 			self.background_main_menu_color = util.lerp(self.background_main_menu_color, 50, self.partial_ticks * 0.3);
 
@@ -242,7 +241,6 @@ class Game:
 
 		if self.stage_outgame == -2 and self.current_map is not None and self.stage_map_editor != 2:
 			self.render_manager.render(self.partial_ticks);
-			self.physic.render(self.partial_ticks);
 
 			if self.stage_input == 1:
 				self.input_manager.render();
@@ -265,6 +263,13 @@ class Game:
 
 			if event.type == WORLD_RENDER_REFRESH and self.current_map != None:
 				self.render_manager.refresh();
+
+			if event.type == pygame.MOUSEMOTION:
+				if self.stage_map_editor == 1:
+					self.map_editor.on_mouse_motion(event.pos[0], event.pos[1]);
+
+				if self.current_map is not None:
+					self.current_map.on_mouse_motion(event.pos[0], event.pos[1]);
 
 			if event.type == pygame.VIDEORESIZE:
 				self.screen_width = event.size[0];
@@ -312,8 +317,6 @@ class Game:
 
 				if self.current_map is not None:
 					self.current_map.on_mouse_event(event.pos[0], event.pos[1], event.button, Flag.KEYDOWN);
-
-		pygame.event.pump();
 
 	def handler_out_event(self):
 		if self.game_gui.current_gui is not None and self.game_gui.current_gui.active is False:

@@ -1,5 +1,5 @@
 from .lib import colorsys, time as time_, GL11, os, math;
-from .    import api, universe;
+from .    import api, universe, physic;
 
 #
 # IMPORTANTE:
@@ -18,7 +18,8 @@ PHOBOS_OBJECT_ID = {"solid": 1,
 
 PHOBOS_SPECIAL_RENDER = {"player_spawn": [0, 190, 190],
 						 "mob_spawn": [190, 0, 0],
-						 "passive_spawn": [190, 190, 0]};
+						 "passive_spawn": [190, 190, 0],
+						 "collision": [190, 0, 190]};
 
 def read_history(data):
 	data["finished"];
@@ -84,10 +85,10 @@ def create_data_map(the_map):
 		image["visibility"] = images.visibility;
 		
 		# Tamanhos.
-		image["x"] = images.x;
-		image["y"] = images.y;
-		image["w"] = images.w;
-		image["h"] = images.h;
+		image["x"] = images.rect.x;
+		image["y"] = images.rect.y;
+		image["w"] = images.rect.w;
+		image["h"] = images.rect.h;
 
 		data["images"].append(image);
 
@@ -148,6 +149,11 @@ def load_data_map(the_map, data):
 		y = images["y"];
 		w = images["w"];
 		h = images["h"];
+
+		if (name == "collision"):
+			collide_rigid_rect = physic.Rectangle(physic.Math.vec2(x - (w / 2), y - (h / 2)), w, h);
+			collide_rigid_rect.push(the_map.master.physic);
+			continue;
 
 		object_ = universe.Object(tag, x, y);
 		object_.w = w;

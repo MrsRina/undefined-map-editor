@@ -1,6 +1,10 @@
 from .lib import pygame, Flag, tkinter, filedialog, shutil, GL11, os, sys, askcolor, messagebox;
 from .    import universe, api, util, imgui;
 
+def task_save(args):
+	args[0].save(args[1])
+	return 1;
+
 class LabelObject(imgui.Label):
 	def __init__(self, master, text, x = 0, y = 0):
 		super().__init__(master, text);
@@ -259,46 +263,6 @@ class Menu(imgui.Element):
 		for widgets in self.loaded_widgets_list:
 			widgets.on_mouse_event(mx, my, button, state);
 
-	def update_mouse_over(self):
-		self.mouse_over = self.rect.collide_with_mouse(self.master.mouse_position);
-
-	def add(self, widget):
-		self.loaded_widgets_list.append(widget);
-
-		return widget;
-
-	def render(self):
-		api.OpenGL.fill(self.rect, [255, 255, 255, 50]);
-
-		width = 4;
-		height = 1;
-
-		for widgets in self.loaded_widgets_list:
-			if widgets.show is False:
-				continue;
-	
-			widgets.render();
-			widgets.update_mouse_over();
-	
-			widgets.string = [255, 255, 255, 255];
-	
-			widgets.offset_x = 2;
-			widgets.offset_y = self.scale;
-	
-			widgets.rect.w = 150;
-	
-			widgets.rect.y = 4;
-			widgets.rect.x = self.rect.x + width;
-	
-			width += widgets.rect.w + 2; #AAAA EU QUERO UM NAMOROADO
-			height = widgets.rect.h;
-
-		self.rect.h = height + 4 * 2;
-		self.rect.w = self.master.screen_rect.w;
-
-		self.rect.set_position(self.rect.x, self.rect.y);
-		self.rect.set_size(self.rect.w, self.rect.h);
-
 		if self.button_background.button_pressed:
 			color = askcolor(title = "Escolha a cor!", color = (int(self.master.current_map.background_color[0]), int(self.master.current_map.background_color[1]), int(self.master.current_map.background_color[2])));
 
@@ -316,7 +280,7 @@ class Menu(imgui.Element):
 			self.button_save.button_pressed = False;
 
 		if self.button_load.button_pressed or self.loop_load:
-			if len(self.master.current_map.loaded_entity_list) is not 0 or len(self.master.current_map.loaded_image_list) is not 0:
+			if len(self.master.current_map.loaded_entity_list) != 0 or len(self.master.current_map.loaded_image_list) != 0:
 				flag = messagebox.askquestion('Carregar', 'Você gostaria de salvar o mapa atual?', icon = 'warning');
 
 				if flag == "yes":
@@ -375,11 +339,11 @@ class Menu(imgui.Element):
 
 				return;
 
-			if self.last_file is not None or (len(self.master.current_map.loaded_entity_list) is not 0 or len(self.master.current_map.loaded_image_list) is not 0 and self.last_file is None):
+			if self.last_file is not None or (len(self.master.current_map.loaded_entity_list) != 0 or len(self.master.current_map.loaded_image_list) != 0 and self.last_file is None):
 				flag = messagebox.askquestion('Sair', 'Você gostaria de salvar o mapa atual?', icon = 'warning')
 
 				if self.last_file is not None and flag == "yes":
-					self.master.current_map.save(self.last_file);
+					self.master.task_manager.task("saving", task_save, [self.master.current_map, self.last_file]);
 				else:
 					if flag == "yes":
 						file = tkinter.filedialog.asksaveasfile(initialdir = self.last_dir, mode = "w", filetypes=[("Json files.", "*.json")]);
@@ -399,6 +363,46 @@ class Menu(imgui.Element):
 				self.loop_exit = 0;
 
 			self.button_exit.button_pressed = False;
+
+	def update_mouse_over(self):
+		self.mouse_over = self.rect.collide_with_mouse(self.master.mouse_position);
+
+	def add(self, widget):
+		self.loaded_widgets_list.append(widget);
+
+		return widget;
+
+	def render(self):
+		api.OpenGL.fill(self.rect, [255, 255, 255, 50]);
+
+		width = 4;
+		height = 1;
+
+		for widgets in self.loaded_widgets_list:
+			if widgets.show is False:
+				continue;
+	
+			widgets.render();
+			widgets.update_mouse_over();
+	
+			widgets.string = [255, 255, 255, 255];
+	
+			widgets.offset_x = 2;
+			widgets.offset_y = self.scale;
+	
+			widgets.rect.w = 150;
+	
+			widgets.rect.y = 4;
+			widgets.rect.x = self.rect.x + width;
+	
+			width += widgets.rect.w + 2; #AAAA EU QUERO UM NAMOROADO
+			height = widgets.rect.h;
+
+		self.rect.h = height + 4 * 2;
+		self.rect.w = self.master.screen_rect.w;
+
+		self.rect.set_position(self.rect.x, self.rect.y);
+		self.rect.set_size(self.rect.w, self.rect.h);
 
 class FrameObject(imgui.Element):
 	def __init__(self, master, x = 0, y = 0, w = 0, h = 0):
@@ -641,6 +645,9 @@ class UI:
 		for widgets in self.loaded_widgets_list:
 			widgets.on_mouse_event(mx, my, button, state);
 
+		if self.master.get_current_map() is None:
+			return;
+
 		current_sprite = self.container_data.current_sprite;
 		current_image = self.master.get_current_map().current_image;
 
@@ -829,6 +836,35 @@ class Editor:
 				self.mouse_click_middle = False;
 				self.mouse_click_right = False;
 				self.mouse_click_left = False;
+			else:
+				self.tile_add_update();
+				self.tile_remove_update();
+
+	def tile_remove_update(self):
+		if self.mouse_click_right and self.get_current_map().current_image is None:
+			object_over = self.get_current_map().get_image(self.master.mouse_position, tile = True);
+
+			if object_over is not None:
+				del self.get_current_map().loaded_image_list[object_over.get_tag()];
+
+	def tile_add_update(self):
+		if self.mouse_click_left and self.get_current_map().current_image is None and self.get_current_map().mouse_over and self.interface.container_data.current_sprite is not None:
+			if self.get_current_map().image_collide_with_mouse(self.master.mouse_position) is False:
+				relative = self.get_current_map().get_relative_mouse_position();
+
+				if self.interface.container_data.current_sprite.tile is False:
+					relative = self.master.mouse_position;
+
+				texture = self.master.texture_manager.get(self.interface.container_data.current_sprite.get_tag());
+				image = self.get_current_map().add_image(self.interface.container_data.current_sprite, [relative[0], relative[1], universe.TILE_SIZE, universe.TILE_SIZE]);
+
+	def on_mouse_motion(self, mx, my):
+		if self.mouse_click_middle:
+			self.master.camera.last_tick_x = mx - self.drag_x;
+			self.master.camera.last_tick_y = my - self.drag_y;
+
+		self.tile_add_update();
+		self.tile_remove_update();
 
 	def render(self, partial_ticks):
 		if self.interface is not None and self.operable:
@@ -845,26 +881,6 @@ class Editor:
 					api.OpenGL.fill_line_shape(image.render_x, image.render_y, image.rect.w, image.rect.h, [0, 190, 190, 200], 1, "all");
 
 			self.interface.render(partial_ticks);
-
-			if self.mouse_click_middle:
-				self.master.camera.x = self.master.mouse_position[0] - self.drag_x;
-				self.master.camera.y = self.master.mouse_position[1] - self.drag_y;	
-
-			if self.mouse_click_left and self.get_current_map().current_image is None and self.get_current_map().mouse_over and self.interface.container_data.current_sprite is not None:
-				if self.get_current_map().image_collide_with_mouse(self.master.mouse_position) is False:
-					relative = self.get_current_map().get_relative_mouse_position();
-
-					if self.interface.container_data.current_sprite.tile is False:
-						relative = self.master.mouse_position;
-
-					texture = self.master.texture_manager.get(self.interface.container_data.current_sprite.get_tag());
-					image = self.get_current_map().add_image(self.interface.container_data.current_sprite, [relative[0], relative[1], universe.TILE_SIZE, universe.TILE_SIZE]);
-
-			if self.mouse_click_right and self.get_current_map().current_image is None:
-				object_over = self.get_current_map().get_image(self.master.mouse_position, tile = True);
-
-				if object_over is not None:
-					del self.get_current_map().loaded_image_list[object_over.get_tag()];
 
 			self.totally_images = 0 if self.get_current_map() is None else len(self.get_current_map().loaded_image_list);
 			self.current_map_tag = "Vazio" if self.get_current_map() is None else self.get_current_map().tag;

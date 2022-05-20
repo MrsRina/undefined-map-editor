@@ -1,5 +1,5 @@
 from .lib import math, pygame;
-from .    import util, api;
+from .    import util, api, physic;
 
 # EU SOu GOSTOSA/
 TAG = 0;
@@ -20,6 +20,7 @@ class Entity:
 		self.last_tick_y = 0;
 
 		self.rect = pygame.Rect(0, 0, 16, 30);
+		self.rigid_rect = physic.Rectangle(physic.Math.vec2(-16, -36), 16, 36);
 
 		self.visibility = True;
 		self.alive = True;
@@ -48,6 +49,9 @@ class Entity:
 		self.database = [tag, 20, id];
 		self.animation = 0;
 
+	def init(self, master):
+		self.rigid_rect.push(master.physic);
+	
 	def set_tag(self, tag):
 		self.database[TAG] = tag;
 
@@ -77,8 +81,7 @@ class Entity:
 		self.right = right;
 
 	def set_position(self, x, y):
-		self.rect.x = x;
-		self.rect.y = y;
+		self.rigid_rect.move(physic.Math.vec2(x, y));
 
 	def respawn(self, default_position = None):
 		self.set_health(20);
@@ -90,23 +93,27 @@ class Entity:
 		y = self.rect.y;
 
 	def jump(self):
+		self.motion_y -= 5;
+		
 		if self.on_ground:
 			self.just_jump = True;
 			self.on_ground = False;
 
-	def update(self, objects, physic, partial_ticks, frustum):
+	def update(self, objects, partial_ticks, frustum):
 		if not self.on_ground:
-		 	self.angle, self.motion_y = util.add_angle_length(self.angle, self.motion_y, math.pi, physic.gravity);
+		 	self.angle, self.motion_y = util.add_angle_length(self.angle, self.motion_y, math.pi, physic.GRAVITY);
 		 	self.motion_y *= self.ampl;
 
-		self.rect.x += self.motion_x * self.speed * physic.gravity * partial_ticks;
-		self.rect.y += -math.cos(self.angle) * self.motion_y;
+		if self.motion_x != 0.0 or self.motion_y != 0.0:
+			self.rigid_rect.move(physic.Math.vec2(self.motion_x * self.speed * partial_ticks, -math.cos(self.angle) * self.motion_y));
+
+		self.rect.x = self.rigid_rect.vertex[0][0];
+		self.rect.y = self.rigid_rect.vertex[0][1];
 
 		self.prev_x = self.rect.x - frustum.x;
 		self.prev_y = self.rect.y - frustum.y;
 
 		self.on_ground = False;
-		self.collide(physic, objects, frustum);
 
 		self.motion_x = self.motion_x * 0.1;
 		self.motion_y = self.motion_y * 0.1;

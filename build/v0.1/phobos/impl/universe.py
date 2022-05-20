@@ -108,8 +108,8 @@ class Object:
 			GL11.glDisable(GL11.GL_TEXTURE_2D);
 
 	def collide_with_mouse(self, mouse):
-		x = self.rect.x;
-		y = self.rect.y;
+		x = self.render_x;
+		y = self.render_y;
 		w = self.rect.w;
 		h = self.rect.h;
 
@@ -193,7 +193,7 @@ class Map:
 		self.loaded_entity_list = {};
 		self.loaded_image_list = {};
 
-		self.spawn_needed = True;
+		self.player_spawn_state = False;
 		self.spawn_id = 0;
 
 		self.background_color = [0, 0, 0, 255];
@@ -225,10 +225,23 @@ class Map:
 
 		return self;
 
+	def spawn_player(self):
+		for i in self.loaded_image_list:
+			image = self.loaded_image_list[i];
+
+			if image.get_name() == "player_spawn":
+				self.master.player.set_position(image.rect.x, image.rect.y);
+
+				self.master.stage_input = 1;
+				self.master.input_manager.entity_in = self.master.player;
+
+				self.player_spawn_state = True;
+
 	def end(self):
 		self.current_image = None;
 		self.loaded_entity_list.clear();
 		self.loaded_image_list.clear();
+		self.master.physic.shape_list.clear();
 
 		self.loaded = False;
 
@@ -276,12 +289,15 @@ class Map:
 	def unset_initialized(sef):
 		self.initialized = False;
 
+	def on_mouse_motion(self, mx, my):
+		self.update_drag_and_resize();
+
 	def on_mouse_event(self, mx, my, button, state):
 		boolean = False;
 
 		if self.edit_mode:
 			if state == Flag.KEYDOWN and self.mouse_over_something is False:
-				if button is 1 and self.current_image is not None and self.current_image.collide_with_mouse([mx, my]):
+				if button == 1 and self.current_image is not None and self.current_image.collide_with_mouse([mx, my]):
 					rect_image = api.Rect(self.current_image.render_x, self.current_image.render_y, self.current_image.rect.w, self.current_image.rect.h);
 
 					rect = api.Rect(rect_image.x, rect_image.y, rect_image.w, rect_image.h);
@@ -323,9 +339,60 @@ class Map:
 				if boolean is False:
 					self.current_image = None;
 
+			if state == Flag.KEYDOWN:
+				self.update_drag_and_resize();
+
 			if state is Flag.KEYUP:
 				self.dragging_image = False;
 				self.resizing_image = False;
+
+	def update_drag_and_resize(self):
+		if self.dragging_image and self.edit_mode and self.current_image is not None:
+			the_x = self.master.mouse_position[0] - self.drag_x;
+			the_y = self.master.mouse_position[1] - self.drag_y;
+
+			x = the_x;
+			y = the_y;
+
+			if self.current_image.tile:
+				mx = ((self.master.mouse_position[0] if self.current_image.rect.w == TILE_SIZE else the_x) + self.master.camera.x) // TILE_SIZE;
+				my = ((self.master.mouse_position[1] if self.current_image.rect.h == TILE_SIZE else the_y) + self.master.camera.y) // TILE_SIZE;
+
+				x = math.floor(mx) * TILE_SIZE;
+				y = math.floor(my) * TILE_SIZE;
+
+			self.current_image.rect.x = x;
+			self.current_image.rect.y = y;
+
+		if self.resizing_image and self.edit_mode and self.current_image is not None:
+			the_x = self.master.mouse_position[0] - (self.current_image.render_x + self.resize_x);
+			the_y = self.master.mouse_position[1] - (self.current_image.render_y + self.resize_y);
+
+			x = the_x;
+			y = the_y;
+
+			if x <= 10:
+				x = 10;
+
+			if y <= 10:
+				y = 10;
+
+			if self.current_image.tile:
+				# Posição relativa.
+				rx = the_x // TILE_SIZE;
+				ry = the_y // TILE_SIZE;
+
+				x = TILE_SIZE + (math.floor(rx) * TILE_SIZE);
+				y = TILE_SIZE + (math.floor(ry) * TILE_SIZE);
+
+				if x <= TILE_SIZE:
+					x = TILE_SIZE;
+
+				if y <= TILE_SIZE:
+					y = TILE_SIZE;
+
+			self.current_image.rect.w = x;
+			self.current_image.rect.h = y;
 
 	def on_key_event(self, key, state):
 		if self.edit_mode:
@@ -407,7 +474,7 @@ class Map:
 	def image_collide_with_point(self, position):
 		flag = False;
 
-		if len(self.loaded_image_list) is 0:
+		if len(self.loaded_image_list) == 0:
 			return flag;
 
 		for i, tags in enumerate(self.loaded_image_list):
@@ -425,7 +492,6 @@ class Map:
 			return;
 
 		del self.loaded_image_list[self.current_image.get_tag()];
-
 		self.current_image = None;
 
 	def get_entity(self, id):
@@ -436,6 +502,7 @@ class Map:
 
 	def add_entity(self, entity):
 		if self.loaded_entity_list.__contains__(entity.get_id()) is False:
+			entity.init(self.master);
 			self.loaded_entity_list[entity.get_id()] = entity;
 
 	def remove_entity(self, id):
@@ -473,7 +540,7 @@ class Map:
 
 			for ids in set(self.loaded_entity_list):
 				entity = self.loaded_entity_list[ids];
-				entity.update(self.loaded_image_list, self.master.physic, partial_ticks, self.master.camera);
+				entity.update(self.loaded_image_list, partial_ticks, self.master.camera);
 
 				if entity.rect.colliderect(self.rect) and entity.alive:
 					entity.visibility = True;
@@ -486,15 +553,12 @@ class Map:
 			self.master.camera.last_tick_x = self.master.player.rect.x - (self.w / 2);
 			self.master.camera.last_tick_y = self.master.player.rect.y - (self.h / 2);
 
-		spawn = None;
-
 		for images in self.loaded_image_list:
 			image = self.loaded_image_list[images];
 			image.update(partial_ticks, self.master.texture_manager, self.master.camera);
 
 			if self.edit_mode:
 				image.color = util.check_if_is_superior(image.get_name());
-
 				util.apply_superior(image.get_name(), image);
 
 			if image.collide_with_rect(self.rect):
@@ -502,65 +566,7 @@ class Map:
 			else:
 				image.visibility = 0;
 
-			if self.spawn_needed and self.edit_mode is False and image.get_name() == "player_spawn":
-				spawn = image;
-
-		if spawn != None:
-			self.master.player.set_position(image.rect.x, image.rect.y);
-
-			self.master.stage_input = 1;
-			self.master.input_manager.entity_in = self.master.player;
-
-			self.spawn_needed = False;
-
 		self.mouse_over = self.rect.collide_with_mouse(self.master.mouse_position);
-
-		if self.dragging_image and self.edit_mode and self.current_image is not None:
-			the_x = self.master.mouse_position[0] - self.drag_x;
-			the_y = self.master.mouse_position[1] - self.drag_y;
-
-			x = the_x;
-			y = the_y;
-
-			if self.current_image.tile:
-				mx = ((self.master.mouse_position[0] if self.current_image.rect.w == TILE_SIZE else the_x) + self.master.camera.x) // TILE_SIZE;
-				my = ((self.master.mouse_position[1] if self.current_image.rect.h == TILE_SIZE else the_y) + self.master.camera.y) // TILE_SIZE;
-
-				x = math.floor(mx) * TILE_SIZE;
-				y = math.floor(my) * TILE_SIZE;
-
-			self.current_image.rect.x = x;
-			self.current_image.rect.y = y;
-
-		if self.resizing_image and self.edit_mode and self.current_image is not None:
-			the_x = self.master.mouse_position[0] - (self.current_image.render_x + self.resize_x);
-			the_y = self.master.mouse_position[1] - (self.current_image.render_y + self.resize_y);
-
-			x = the_x;
-			y = the_y;
-
-			if x <= 10:
-				x = 10;
-
-			if y <= 10:
-				y = 10;
-
-			if self.current_image.tile:
-				# Posição relativa.
-				rx = the_x // TILE_SIZE;
-				ry = the_y // TILE_SIZE;
-
-				x = TILE_SIZE + (math.floor(rx) * TILE_SIZE);
-				y = TILE_SIZE + (math.floor(ry) * TILE_SIZE);
-
-				if x <= TILE_SIZE:
-					x = TILE_SIZE;
-
-				if y <= TILE_SIZE:
-					y = TILE_SIZE;
-
-			self.current_image.rect.w = x;
-			self.current_image.rect.h = y;
 
 	def render(self, partial_ticks):
 		pass;
@@ -576,16 +582,15 @@ class Camera:
 		self.last_tick_y = self.y;
 
 	def set_position(self, x, y):
-		self.x = self.x;
-		self.y = self.y;
+		self.x = x;
+		self.y = y;
+
+		self.last_tick_x = x;
+		self.last_tick_y = y;
 
 	def get_position(self):
 		return [self.last_tick_x, self.last_tick_y];
 
 	def update(self, partial_ticks):
-		if self.master.stage_input == 1:
-			self.x = util.lerp(self.x, self.last_tick_x, partial_ticks);
-			self.y = util.lerp(self.y, self.last_tick_y, partial_ticks);
-		else:
-			self.x = self.last_tick_x;
-			self.y = self.last_tick_y;
+		self.x = util.lerp(self.x, self.last_tick_x, partial_ticks);
+		self.y = util.lerp(self.y, self.last_tick_y, partial_ticks);

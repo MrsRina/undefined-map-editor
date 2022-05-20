@@ -201,6 +201,7 @@ class MainMenu(api.Gui):
 				self.master.current_map = self.master.client_map.start("level_1", 1);
 				self.master.current_map.load("map/level1/level_1.json");
 				self.master.current_map.add_entity(self.master.player);
+				self.master.current_map.spawn_player();
 
 			self.button_map_editor.button_pressed = False;
 
