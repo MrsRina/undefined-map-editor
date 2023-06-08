@@ -4,7 +4,7 @@ Phobos was a game made in week to a game jam (Game JaaJ 2021), this game is made
 To execute (only windows):
 ```
 # clone the repo
-git clone https://github.com/SirRina/phobos-game-pygame.git
+git clone https://github.com/MrsRina/phobos-game-pygame.git
 
 # go to path or find folder manually.
 cd \build\v0.1\phobos\ && start 64x.bat
