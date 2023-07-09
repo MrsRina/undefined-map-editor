@@ -32,7 +32,6 @@ Future features:
 - History sync.
 
 # credit
-- ![Rina](https://github.com//MrsRina)
 - Ranklee & others design (resources I used to test stuff).
 
 ![Alt text](/resources/splash/splash_main_menu.png?raw=true)
