@@ -334,8 +334,6 @@ def check_if_is_superior(name):
 # https://www.w3resource.com/python-exercises/math/python-math-exercise-77.php
 # Tive que pegar, em java e mais facil fazer a conversao, isso ai ja e suficiente.
 def rgb_to_hsb(r, g, b):
-	r, g, b = r, g, b;
-
 	mx = max(r, g, b);
 	mn = min(r, g, b);
 
