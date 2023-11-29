@@ -1,4 +1,4 @@
-# phobos
+# undefined map editor, aka phobos
 Phobos was a game made in one week to a game jam (Game JaaJ 2021), this game is made in SDL2 (pygame) & OpenGL Legacy.
 
 To execute (only windows):
