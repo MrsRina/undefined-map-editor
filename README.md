@@ -1,5 +1,6 @@
 # undefined map editor, aka phobos
-Phobos was a game made in one week to a game jam (Game JaaJ 2021), this game is made in SDL2 (pygame) & OpenGL Legacy.
+Phobos was a game made in one week to a game jam (Game JaaJ 2021), this game is made in SDL2 (pygame) & OpenGL Legacy.  
+There is a file named `imgui.py` but it is not related any external GUI library, it is my own retained UI-system just with a lovely homage name.
 
 To execute (only windows):
 ```
